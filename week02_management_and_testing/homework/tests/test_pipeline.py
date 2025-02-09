@@ -88,8 +88,8 @@ def test_training(learning_rate, num_epochs, expected_loss_threshold, sample_out
     test_batch = next(iter(dataloader))[0].to(device)
 
     with torch.no_grad():
-        final_loss = model(test_batch).item()
+        final_loss, _ = model(test_batch)
 
-    assert final_loss < expected_loss_threshold, (
+    assert final_loss.item() < expected_loss_threshold, (
         f"Final loss {final_loss:.4f} did not meet the expected threshold {expected_loss_threshold:.4f}"
     )

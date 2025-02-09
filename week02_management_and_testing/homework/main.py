@@ -4,7 +4,7 @@ from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
 from modeling.diffusion import DiffusionModel
-from modeling.training import generate_samples, train_epoch
+from modeling.training import generate_samples, generate_samples_from_batch, train_epoch
 from modeling.unet import UnetModel
 import wandb
 from hparams import config
@@ -41,6 +41,9 @@ def main(device: str, config=config):
 
     for epoch in range(config["num_epochs"]):
         
+        sample_batch, _ = next(iter(dataloader))
+        # wandb.log({f"Input Batch Epoch {epoch}": [wandb.Image(sample_batch)]})
+
         sample_path = f"samples/{epoch:02d}.png"
         epoch_loss = train_epoch(ddpm, dataloader, optim, device)
 
@@ -51,10 +54,13 @@ def main(device: str, config=config):
             "epoch": epoch,
             "epoch_loss": epoch_loss,
             "learning_rate": optim.param_groups[0]['lr'],
-            "Generated Samples": wandb.Image(sample_path)
+            "generated samples from batch": wandb.Image(
+                generate_samples_from_batch(ddpm, sample_batch.to(device))
+            ),
+            "generated samples":  wandb.Image(sample_path)
         })
 
 
 if __name__ == "__main__":
-    device = "cuda:5" if torch.cuda.is_available() else "cpu"
+    device = "cuda:7"
     main(device=device)

@@ -29,7 +29,7 @@ class DiffusionModel(nn.Module):
             + self.sqrt_one_minus_alpha_prod[timestep, None, None, None] * eps
         )
 
-        return self.criterion(eps, self.eps_model(x_t, timestep / self.num_timesteps))
+        return self.criterion(eps, self.eps_model(x_t, timestep / self.num_timesteps)), x_t
 
     def sample(self, num_samples: int, size, device) -> torch.Tensor:
 

@@ -10,7 +10,7 @@ from modeling.diffusion import DiffusionModel
 def train_step(model: DiffusionModel, inputs: torch.Tensor, optimizer: Optimizer, device: str):
     optimizer.zero_grad()
     inputs = inputs.to(device)
-    loss = model(inputs)
+    loss, _ = model(inputs)
     loss.backward()
     optimizer.step()
     return loss
@@ -33,3 +33,22 @@ def generate_samples(model: DiffusionModel, device: str, path: str):
         samples = model.sample(8, (3, 32, 32), device=device)
         grid = make_grid(samples, nrow=4)
         save_image(grid, path)
+
+
+
+# def denormalize(tensor, mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)):
+#     """
+#     Reverse the normalization applied during preprocessing.
+#     """
+#     mean = torch.tensor(mean).view(1, 3, 1, 1).to(tensor.device)
+#     std = torch.tensor(std).view(1, 3, 1, 1).to(tensor.device)
+#     return tensor * std + mean  # Reverse normalization
+
+def generate_samples_from_batch(model: DiffusionModel, batch: torch.tensor):
+    """
+    Generate samples from a given batch using the diffusion model.
+    """
+    model.eval()
+    with torch.no_grad():
+        _, out = model(batch)  # Assuming model outputs image-like tensors
+    return out
