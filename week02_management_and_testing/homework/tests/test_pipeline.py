@@ -1,11 +1,13 @@
 import pytest
 import torch
-from torch.utils.data import DataLoader
+import torch.nn as nn
+from torch.optim import Adam
+from torch.utils.data import DataLoader, TensorDataset
 from torchvision.transforms import Compose, ToTensor, Normalize
 from torchvision.datasets import CIFAR10
 
 from modeling.diffusion import DiffusionModel
-from modeling.training import train_step
+from modeling.training import train_step, train_epoch, generate_samples
 from modeling.unet import UnetModel
 
 
@@ -41,6 +43,66 @@ def test_train_on_one_batch(device, train_dataset):
     assert loss < 0.5
 
 
-def test_training():
-    # note: implement and test a complete training procedure (including sampling)
-    pass
+
+
+@pytest.fixture
+def sample_output_file(tmp_path):
+    file_path = tmp_path / "test_samples_output.png"
+    yield file_path
+    # Cleanup: remove the file if it exists after the test.
+    if file_path.exists():
+        file_path.unlink()
+
+@pytest.mark.parametrize("learning_rate, num_epochs, expected_loss_threshold", [
+    (1e-3, 1, 2.0),
+    (5e-4, 2, 1.5),
+    (1e-4, 3, 1.0),
+])
+def test_training(learning_rate, num_epochs, expected_loss_threshold, sample_output_file):
+    """
+    This integration test verifies the entire training procedure in modeling.training
+    using a UNet model as the epsilon network for the DiffusionModel.
+    We vary learning_rate and num_epochs to test different outcomes and
+    increase the coverage for the training file.
+
+    Steps:
+      1. Create a small synthetic dataset.
+      2. Instantiate the UNet-based DiffusionModel and an optimizer.
+      3. Train the model for the specified number of epochs.
+      4. Use generate_samples to confirm generation coverage.
+      5. Check final loss is below a threshold, indicating training success.
+    """
+
+    # 1. Сгенерируем синтетический датасет
+    inputs = torch.randn(32, 3, 32, 32)
+    labels = torch.zeros(32)    # фикс даталоадера
+    dataset = TensorDataset(inputs, labels)
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
+
+    # 2. Инициализация
+    device = "cpu"
+    unet = UnetModel(in_channels=3, out_channels=3, hidden_size=32)
+    model = DiffusionModel(
+        eps_model=unet,
+        betas=(1e-4, 2e-2),
+        num_timesteps=10
+    ).to(device)
+
+    optimizer = Adam(model.parameters(), lr=learning_rate)
+
+    # 3. Обучим модель
+    for _ in range(num_epochs):
+        train_epoch(model, dataloader, optimizer, device)
+
+    # 4. Проверим, что работает генерация
+    generate_samples(model, device, str(sample_output_file))
+
+    # 5. Чекнем лосс на одном батче
+    test_batch = next(iter(dataloader))[0].to(device)
+
+    with torch.no_grad():
+        final_loss = model(test_batch).item()
+
+    assert final_loss < expected_loss_threshold, (
+        f"Final loss {final_loss:.4f} did not meet the expected threshold {expected_loss_threshold:.4f}"
+    )
