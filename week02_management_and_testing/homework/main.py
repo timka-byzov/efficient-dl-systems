@@ -36,13 +36,14 @@ def main(device: str, config=config):
         transform=train_transforms,
     )
 
+
+    sample_batch, _ = next(iter(DataLoader(dataset, batch_size=config['batch_size'])))
+    wandb.log({f"sample batch": [wandb.Image(sample_batch)]})
+
     dataloader = DataLoader(dataset, batch_size=config['batch_size'], num_workers=4, shuffle=True)
     optim = torch.optim.Adam(ddpm.parameters(), lr=config['learning_rate'])
 
     for epoch in range(config["num_epochs"]):
-        
-        sample_batch, _ = next(iter(dataloader))
-        # wandb.log({f"Input Batch Epoch {epoch}": [wandb.Image(sample_batch)]})
 
         sample_path = f"samples/{epoch:02d}.png"
         epoch_loss = train_epoch(ddpm, dataloader, optim, device)
