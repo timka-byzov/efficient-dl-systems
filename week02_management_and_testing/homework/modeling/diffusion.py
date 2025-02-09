@@ -33,10 +33,10 @@ class DiffusionModel(nn.Module):
 
     def sample(self, num_samples: int, size, device) -> torch.Tensor:
 
-        x_i = torch.randn(num_samples, *size)
+        x_i = torch.randn(num_samples, *size).to(device)
 
         for i in range(self.num_timesteps, 0, -1):
-            z = torch.randn(num_samples, *size) if i > 1 else 0
+            z = (torch.randn(num_samples, *size) if i > 1 else torch.tensor(0.0)).to(device)
             eps = self.eps_model(x_i, torch.tensor(i / self.num_timesteps).repeat(num_samples, 1).to(device))
             x_i = self.inv_sqrt_alphas[i] * (x_i - eps * self.one_minus_alpha_over_prod[i]) + self.sqrt_betas[i] * z
 

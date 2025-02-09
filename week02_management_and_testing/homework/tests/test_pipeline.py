@@ -58,20 +58,8 @@ def sample_output_file(tmp_path):
     (5e-4, 2, 1.5),
     (1e-4, 3, 1.0),
 ])
-def test_training(learning_rate, num_epochs, expected_loss_threshold, sample_output_file):
-    """
-    This integration test verifies the entire training procedure in modeling.training
-    using a UNet model as the epsilon network for the DiffusionModel.
-    We vary learning_rate and num_epochs to test different outcomes and
-    increase the coverage for the training file.
-
-    Steps:
-      1. Create a small synthetic dataset.
-      2. Instantiate the UNet-based DiffusionModel and an optimizer.
-      3. Train the model for the specified number of epochs.
-      4. Use generate_samples to confirm generation coverage.
-      5. Check final loss is below a threshold, indicating training success.
-    """
+@pytest.mark.parametrize(["device"], [["cpu"], ["cuda"]])
+def test_training(learning_rate, num_epochs, expected_loss_threshold, sample_output_file, device):
 
     # 1. Сгенерируем синтетический датасет
     inputs = torch.randn(32, 3, 32, 32)
@@ -80,7 +68,6 @@ def test_training(learning_rate, num_epochs, expected_loss_threshold, sample_out
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
     # 2. Инициализация
-    device = "cpu"
     unet = UnetModel(in_channels=3, out_channels=3, hidden_size=32)
     model = DiffusionModel(
         eps_model=unet,
