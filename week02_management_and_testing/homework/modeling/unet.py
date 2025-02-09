@@ -108,6 +108,8 @@ class UnetModel(nn.Module):
         thro = self.to_vec(down3)
         temb = self.timestep_embedding(t)
 
+        temb = temb[:, :, None, None]   # вектор салкдывается с 4хмерными векторами, где мы можем его забродкастить -> добавим доп измерения
+
         thro = self.up0(thro + temb)
 
         up1 = self.up1(thro, down3) + temb
