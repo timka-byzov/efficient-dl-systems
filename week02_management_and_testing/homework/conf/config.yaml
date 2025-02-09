@@ -1,0 +1,26 @@
+# conf/config.yaml
+
+trainer:
+  device: cuda:1
+  peak_lr: 2e-4
+  batch_size: 128
+  num_workers: 4 
+  num_epochs: 100
+  flip_augment: true 
+  beta1: 5e-4
+  beta2: 0.03
+  num_timesteps: 750
+  hid_size: 256
+
+optimizer: adam
+
+
+optimizer_configs:
+  adam:
+    name: "Adam"
+    weight_decay: 0.01
+
+  sgd:
+    name: "SGD"
+    momentum: 0.9
+
