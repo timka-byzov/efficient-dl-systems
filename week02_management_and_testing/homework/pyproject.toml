@@ -1,0 +1,22 @@
+[project]
+name = "homework"
+version = "0.1.0"
+description = "efficient dl HW1"
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch (==2.1.2)",
+    "torchvision (==0.16.2)",
+    "tqdm (==4.66.1)",
+    "pytest (==7.4.4)",
+    "pytest-cov (==4.1.0)",
+    "wandb (>=0.19.6,<0.20.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
