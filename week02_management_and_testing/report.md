@@ -24,3 +24,5 @@
 проект с ранами и артефактами: https://wandb.ai/byz0vtm-ural-federal-university/effdl?nw=nwuserbyz0vtm
 
 run на 100 эпох: https://wandb.ai/byz0vtm-ural-federal-university/effdl/runs/mkpngma8?nw=nwuserbyz0vtm
+
+(модель не сошлась, пофиксить перебором гиперпараметров и поиском баг так и не смог)
