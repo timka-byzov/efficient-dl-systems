@@ -47,6 +47,6 @@ def test_diffusion(num_channels=3, batch_size=4):
 
     input_data = torch.randn((batch_size, num_channels, 32, 32))
 
-    output = model(input_data)
-    assert output.ndim == 0
-    assert 1.0 <= output <= 1.2
+    loss, _ = model(input_data)
+    assert loss.ndim == 0
+    assert 1.0 <= loss <= 1.2
