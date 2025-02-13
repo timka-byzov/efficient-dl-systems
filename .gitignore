@@ -130,3 +130,6 @@ dmypy.json
 
 .idea
 .DS_Store
+
+# data
+week03_fast_pipilines/homework/task1/train
