@@ -132,4 +132,5 @@ dmypy.json
 .DS_Store
 
 # data
-week03_fast_pipilines/homework/task1/train
+week03_fast_pipelines/homework/task1/train
+week03_fast_pipelines/homework/task1/train_masks
