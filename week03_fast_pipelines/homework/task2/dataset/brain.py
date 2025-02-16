@@ -5,9 +5,6 @@ from torch.utils.data.dataset import Dataset
 
 
 class BrainDataset(Dataset):
-    """
-    Naive batching: pad every sample to a fixed MAX_LENGTH.
-    """
     def __init__(self, data_path: str, tokenizer, max_length: int = 640):
         self.max_length = max_length
 

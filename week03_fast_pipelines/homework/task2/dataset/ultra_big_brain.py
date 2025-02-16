@@ -15,7 +15,6 @@ class UltraBigBrainBatchSampler(Sampler):
         self.batch_size = batch_size
         self.k = k
 
-        # Build a hash table mapping each sample length to a list of indices.
         self.len_to_indices = {}
         for idx in range(len(dataset)):
             sample_length = len(dataset[idx])
@@ -28,14 +27,9 @@ class UltraBigBrainBatchSampler(Sampler):
             random.shuffle(self.len_to_indices[length])
 
     def __iter__(self):
-        """
-        Yields:
-            batch (list): A list of indices forming one batch. In each batch, the difference 
-                          between the longest and shortest sample lengths is <= k.
-        """
-        # Create pointers for each bucket
+
         pointers = {length: 0 for length in self.len_to_indices}
-        # Set of lengths that still have available indices
+
         nonempty = {length for length in self.len_to_indices if pointers[length] < len(self.len_to_indices[length])}
 
         # Continue until all buckets are exhausted
@@ -57,7 +51,4 @@ class UltraBigBrainBatchSampler(Sampler):
             yield batch
 
     def __len__(self):
-        """
-        Returns an estimate of the number of batches per epoch.
-        """
         return (len(self.dataset) + self.batch_size - 1) // self.batch_size
