@@ -106,6 +106,8 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=Settings.lr)
 
+    print(f"device: {Settings.device}")
+
 
     # my code
     profiler = Profile(model, name="ViTModel", schedule={"active": 2})
