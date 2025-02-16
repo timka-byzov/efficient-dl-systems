@@ -3,11 +3,7 @@ import time
 import torch
 import os
 import threading
-from collections import defaultdict
 
-# -----------------------------
-# Custom Profiler Implementation
-# -----------------------------
 class Profile:
     def __init__(self, model, name="model", schedule=None):
         self.name_map = self._build_name_map(model, name)
@@ -17,7 +13,6 @@ class Profile:
         self.fwd_start = {}
         self.bwd_start = {}
         self.current_step = 0
-        # Schedule: dictionary with keys "wait", "warmup", "active"
         self.schedule = schedule or {"wait": 1, "warmup": 1, "active": 3}
 
 

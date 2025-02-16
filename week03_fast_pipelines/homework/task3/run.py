@@ -32,8 +32,8 @@ def get_loaders() -> torch.utils.data.DataLoader:
     val_transforms = dataset.get_val_transforms()
 
     frame = pd.read_csv(f"{Clothes.directory}/{Clothes.csv_name}")
-    train_frame = frame.sample(frac=Settings.train_frac)[:100]
-    val_frame = frame.drop(train_frame.index)[:100]
+    train_frame = frame.sample(frac=Settings.train_frac)
+    val_frame = frame.drop(train_frame.index)
 
     train_data = dataset.ClothesDataset(
         f"{Clothes.directory}/{Clothes.train_val_img_dir}", train_frame, transform=train_transforms
@@ -45,8 +45,8 @@ def get_loaders() -> torch.utils.data.DataLoader:
     print(f"Train Data: {len(train_data)}")
     print(f"Val Data: {len(val_data)}")
 
-    train_loader = DataLoader(dataset=train_data, batch_size=Settings.batch_size, shuffle=True)
-    val_loader = DataLoader(dataset=val_data, batch_size=Settings.batch_size, shuffle=False)
+    train_loader = DataLoader(dataset=train_data, batch_size=Settings.batch_size, shuffle=True, num_workers=4)
+    val_loader = DataLoader(dataset=val_data, batch_size=Settings.batch_size, shuffle=False, num_workers=4)
 
     return train_loader, val_loader
 
@@ -110,7 +110,7 @@ def main():
 
 
     # my code
-    profiler = Profile(model, name="ViTModel", schedule={"active": 2})
+    profiler = Profile(model, name="ViTModel", schedule={"wait": 1, "warmup": 1, "active": 3})
 
     
     for epoch in range(2):
