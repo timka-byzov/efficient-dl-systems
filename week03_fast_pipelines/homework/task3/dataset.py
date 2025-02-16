@@ -8,6 +8,7 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 from utils import Clothes, get_labels_dict
+import yadisk
 
 
 class ClothesDataset(Dataset):
@@ -31,21 +32,33 @@ class ClothesDataset(Dataset):
         return img_transformed, label
 
 
+
 def download_extract_dataset():
     if os.path.exists(f"{Clothes.directory}/{Clothes.train_val_img_dir}"):
         print("Dataset already extracted")
         return
-    os.makedirs(Clothes.directory, exist_ok=True)
-    gdown.download(
-        "https://drive.google.com/uc?id=19QYn7wX9kbBOUT3ofztgRURNR_8WLPj6",
-        output=f"{Clothes.directory}/{Clothes.archive_name}.zip",
-    )
-    gdown.download(
-        "https://drive.google.com/uc?id=1rk8CFX-0MdezDue_dSl6pGHzAtFrJefm",
-        output=f"{Clothes.directory}/{Clothes.csv_name}",
-    )
-    with zipfile.ZipFile(f"{Clothes.directory}/{Clothes.archive_name}.zip") as train_zip:
-        train_zip.extractall(f"{Clothes.directory}/{Clothes.train_val_img_dir}")
+    
+    raise Exception("треин файлы разъебались")
+    # os.makedirs(Clothes.directory, exist_ok=True)
+    # gdown.download(
+    #     "https://drive.google.com/uc?id=19QYn7wX9kbBOUT3ofztgRURNR_8WLPj6",
+    #     output=f"{Clothes.directory}/{Clothes.archive_name}.zip",
+    # )
+    # gdown.download(
+    #     "https://drive.google.com/uc?id=1rk8CFX-0MdezDue_dSl6pGHzAtFrJefm",
+    #     output=f"{Clothes.directory}/{Clothes.csv_name}",
+    # )
+    # #download_extract_dataset_yadisk()
+    # with zipfile.ZipFile(f"{Clothes.directory}/{Clothes.archive_name}.zip") as train_zip:
+    #     train_zip.extractall(f"{Clothes.directory}/{Clothes.train_val_img_dir}")
+
+
+
+def download_extract_dataset_yadisk():
+    y = yadisk.YaDisk()
+    public_url = "https://disk.yandex.ru/d/JzSOkc4m2aGDXQ"
+    public_info = y.get_public_meta(public_url)
+    y.download_public(public_url, public_info['name'])
 
 
 def get_train_transforms() -> tp.Any:

@@ -1,3 +1,4 @@
+from profiler import Profile
 import typing as tp
 
 import torch
@@ -31,8 +32,8 @@ def get_loaders() -> torch.utils.data.DataLoader:
     val_transforms = dataset.get_val_transforms()
 
     frame = pd.read_csv(f"{Clothes.directory}/{Clothes.csv_name}")
-    train_frame = frame.sample(frac=Settings.train_frac)
-    val_frame = frame.drop(train_frame.index)
+    train_frame = frame.sample(frac=Settings.train_frac)[:100]
+    val_frame = frame.drop(train_frame.index)[:100]
 
     train_data = dataset.ClothesDataset(
         f"{Clothes.directory}/{Clothes.train_val_img_dir}", train_frame, transform=train_transforms
@@ -50,7 +51,7 @@ def get_loaders() -> torch.utils.data.DataLoader:
     return train_loader, val_loader
 
 
-def run_epoch(model, train_loader, val_loader, criterion, optimizer) -> tp.Tuple[float, float]:
+def run_epoch(model, train_loader, val_loader, criterion, optimizer, profiler=None) -> tp.Tuple[float, float]:
     epoch_loss, epoch_accuracy = 0, 0
     val_loss, val_accuracy = 0, 0
     model.train()
@@ -59,12 +60,31 @@ def run_epoch(model, train_loader, val_loader, criterion, optimizer) -> tp.Tuple
         label = label.to(Settings.device)
         output = model(data)
         loss = criterion(output, label)
+
+        optimizer.zero_grad()
+        
+        # my code
+        if profiler:
+            with profiler:
+                output = model(data)
+                loss = criterion(output, label)
+                loss.backward()
+        else:
+            output = model(data)
+            loss = criterion(output, label)
+            loss.backward()
+        # end
+
+        optimizer.step()
+
+        # my code
+        if profiler:
+            profiler.step()
+        # end
+
         acc = (output.argmax(dim=1) == label).float().mean()
         epoch_accuracy += acc.item() / len(train_loader)
         epoch_loss += loss.item() / len(train_loader)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
 
     model.eval()
     for data, label in tqdm(val_loader, desc="Val"):
@@ -86,7 +106,23 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=Settings.lr)
 
-    run_epoch(model, train_loader, val_loader, criterion, optimizer)
+
+    # my code
+    profiler = Profile(model, name="ViTModel", schedule={"wait": 1, "warmup": 1, "active": 2})
+
+    
+    for epoch in range(4):
+        
+        print(f"Epoch {epoch}")
+        epoch_loss, epoch_acc, val_loss, val_acc = run_epoch(model, train_loader, val_loader, criterion, optimizer, profiler)
+
+        print(f"Train Loss: {epoch_loss:.4f}, Train Acc: {epoch_acc:.4f}")
+        print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
+    
+    # log last epoch
+    profiler.to_perfetto("custom_trace.json")
+
+    # end
 
 
 if __name__ == "__main__":
