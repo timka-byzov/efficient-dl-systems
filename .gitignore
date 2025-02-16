@@ -134,3 +134,10 @@ dmypy.json
 # data
 week03_fast_pipelines/homework/task1/train
 week03_fast_pipelines/homework/task1/train_masks
+week03_fast_pipelines/homework/task2/data
+week03_fast_pipelines/homework/task3/data
+week03_fast_pipelines/seminar/mnist
+week03_fast_pipelines/wikitext*
+
+
+.vscode

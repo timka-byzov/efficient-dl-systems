@@ -108,10 +108,10 @@ def main():
 
 
     # my code
-    profiler = Profile(model, name="ViTModel", schedule={"wait": 1, "warmup": 1, "active": 2})
+    profiler = Profile(model, name="ViTModel", schedule={"active": 2})
 
     
-    for epoch in range(4):
+    for epoch in range(2):
         
         print(f"Epoch {epoch}")
         epoch_loss, epoch_acc, val_loss, val_acc = run_epoch(model, train_loader, val_loader, criterion, optimizer, profiler)
